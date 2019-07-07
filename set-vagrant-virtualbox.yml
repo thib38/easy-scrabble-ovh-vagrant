@@ -1,0 +1,66 @@
+---
+- name: vagrant provisioning for scrabble development on ubuntu 18.04 LTS
+  hosts: ovh
+  remote_user: scrabble
+  become: yes
+
+  tasks:
+    - name: install python 3.6 and virtualenv with system packaging which is better than pip
+      apt:
+        name:
+        - python3.6
+        - virtualenv
+        state: latest
+
+    - name: install python modules
+      pip:
+        virtualenv_python: python3.6
+        virtualenv: /scrabble_venv
+        name:
+#          - marshmallow
+          - hug
+#          - line_profiler   compilation failing because /python.h/ not found at compile time
+          - zmq
+          - waitress
+          - typing
+# latest marshmallow version - 3.0.0xxx mandatory
+          - git+https://github.com/marshmallow-code/marshmallow.git@dev
+          - pytest
+
+
+    - name: install nginx
+      apt:
+        name: nginx
+        state: latest
+      notify: start nginx
+
+    - name: set nginx conf
+      copy:
+        src: "/vagrant/nginx.conf"
+        dest: "/etc/nginx/nginx.conf"
+        remote_src: yes
+      notify: restart nginx
+
+
+    - name: set french keyboard
+      command: loadkeys fr
+      register: french_keyboard
+
+#    - name: activate virtualenv
+#      shell: |
+#       cd /scrabble
+#       nohup /scrabble_venv/bin/python dictionary_server.py &
+#       nohup /scrabble_venv/bin/python waitress_launch.py &
+#       exit 0
+#      register: venv_activate
+#
+#    - name: print output
+#      debug:
+#        var: venv_activate
+#        verbosity: 0
+
+  handlers:
+    - name: start nginx
+      service: name=nginx state=started
+    - name: restart nginx
+      service: name=nginx state=restarted
