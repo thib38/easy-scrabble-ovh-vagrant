@@ -2,10 +2,9 @@
 # this file is to be used to set-up the backend server for the easy-scrabble
 # it assumes that ssh public key is for user scrabble is already set-up and the scrabble user as sudo
 # privileges already on the target server(s)
--
 - name: provisioning for scrabble server backend on ubuntu 18.04 LTS
   hosts: ovh   # server must be defined in /etc/ansible/hosts file
-  remote_user: scrabble
+  remote_user: scrabble  # user must be pre-configures with sudo privileges
   become: yes
 
   tasks:
@@ -40,7 +39,7 @@
 
     - name: set nginx conf
       copy:
-        src: "/home/thib/nginx.conf"
+        src: "/mnt/e/Thib/src/scrabble-ovh-vagrant/nginx.conf"
         dest: "/etc/nginx/nginx.conf"
         remote_src: no
       notify: restart nginx
