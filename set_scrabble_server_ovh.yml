@@ -44,23 +44,47 @@
         remote_src: no
       notify: restart nginx
 
+    - name: Creates directory for default nginx html pages
+      file:
+        path: /scrabble/html
+        state: directory
 
-#    - name: set french keyboard
+    - name: copy default html page
+      copy:
+        src: "/mnt/e/Thib/src/scrabble-ovh-vagrant/scrabble.html"
+        dest: "/scrabble/html"
+        remote_src: no
+      notify: restart nginx
+
+    - git:
+        repo: 'https://github.com/thib38/easy-scrabble-backend.git'
+        dest: /scrabble_venv/src
+        version: master
+        force: yes
+# - name: set french keyboard
 #      command: loadkeys fr
 #      register: french_keyboard
 
-#    - name: activate virtualenv
-#      shell: |
-#       cd /scrabble
-#       nohup /scrabble_venv/bin/python dictionary_server.py &
-#       nohup /scrabble_venv/bin/python waitress_launch.py &
-#       exit 0
-#      register: venv_activate
-#
-#    - name: print output
-#      debug:
-#        var: venv_activate
-#        verbosity: 0
+    - name: Creates directory for various scrabble application logs
+      file:
+        path: /var/log/scrabble
+        state: directory
+
+    - name: activate virtualenv
+      shell: |
+       cd /scrabble_venv/src
+       nohup /scrabble_venv/bin/python dictionnary_server_en.py &
+       nohup /scrabble_venv/bin/python dictionary_server_fr.py &
+       nohup /scrabble_venv/bin/python waitress_launch.py &cd  é
+       exit 0
+      register: venv_activate
+
+    - name: print output
+      debug:
+        var: venv_activate
+        verbosity: 0
+
+
 
   handlers:
     - name: start nginx
