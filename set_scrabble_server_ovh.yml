@@ -79,7 +79,8 @@
       notify: restart nginx
 
     # copy source code from github repo TODO make the repo private
-    - git:
+    - name: copy source code from github repo
+      git:
         repo: 'https://github.com/thib38/easy-scrabble-backend.git'
         dest: /scrabble_venv/src
         version: master
